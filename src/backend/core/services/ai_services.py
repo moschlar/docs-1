@@ -6,7 +6,7 @@ from typing import Generator
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +27,10 @@ class AIService:
     def proxy(self, data: dict, stream: bool = False) -> Generator[str, None, None]:
         """Proxy AI API requests to the configured AI provider."""
         data["stream"] = stream
-        return self.client.chat.completions.create(**data)
+        try:
+            return self.client.chat.completions.create(**data)
+        except OpenAIError as e:
+            raise RuntimeError(f"Failed to proxy AI request: {e}") from e
 
     def stream(self, data: dict) -> Generator[str, None, None]:
         """Stream AI API requests to the configured AI provider."""
