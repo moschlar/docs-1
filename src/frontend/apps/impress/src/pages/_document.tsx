@@ -1,13 +1,31 @@
-import { Head, Html, Main, NextScript } from 'next/document';
+import Document, {
+  DocumentContext,
+  Head,
+  Html,
+  Main,
+  NextScript,
+} from 'next/document';
 
-export default function RootLayout() {
-  return (
-    <Html>
-      <Head />
-      <body suppressHydrationWarning={process.env.NODE_ENV === 'development'}>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
+class MyDocument extends Document<{ locale: string }> {
+  static async getInitialProps(ctx: DocumentContext) {
+    const initialProps = await Document.getInitialProps(ctx);
+    return {
+      ...initialProps,
+      locale: ctx.locale || 'fr',
+    };
+  }
+
+  render() {
+    return (
+      <Html lang={this.props.locale}>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
 }
+
+export default MyDocument;
