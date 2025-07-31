@@ -89,13 +89,6 @@ export const DocsGridActions = ({
     setIsMenuOpen(isOpen);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      e.currentTarget.click();
-    }
-  };
-
   return (
     <>
       <DropdownMenu
@@ -113,7 +106,6 @@ export const DocsGridActions = ({
           tabIndex={0}
           aria-haspopup="true"
           aria-expanded={isMenuOpen}
-          onKeyDown={handleKeyDown}
         />
       </DropdownMenu>
 

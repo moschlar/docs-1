@@ -2,6 +2,7 @@ import { HorizontalSeparator } from '@gouvfr-lasuite/ui-kit';
 import {
   Fragment,
   PropsWithChildren,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -10,6 +11,8 @@ import { css } from 'styled-components';
 
 import { Box, BoxButton, BoxProps, DropButton, Icon, Text } from '@/components';
 import { useCunninghamTheme } from '@/cunningham';
+
+import { useDropdownKeyboardNav } from './hook/useDropdownKeyboardNav';
 
 export type DropdownMenuOption = {
   icon?: string;
@@ -54,22 +57,32 @@ export const DropdownMenu = ({
   const blockButtonRef = useRef<HTMLDivElement>(null);
   const menuItemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const onOpenChange = (isOpen: boolean) => {
-    setIsOpen(isOpen);
-    setFocusedIndex(-1);
-    afterOpenChange?.(isOpen);
-  };
+  const onOpenChange = useCallback(
+    (isOpen: boolean) => {
+      setIsOpen(isOpen);
+      setFocusedIndex(-1);
+      afterOpenChange?.(isOpen);
+    },
+    [afterOpenChange],
+  );
 
-  // Focus first menu item when menu opens
+  useDropdownKeyboardNav({
+    isOpen,
+    focusedIndex,
+    options,
+    menuItemRefs,
+    setFocusedIndex,
+    onOpenChange,
+  });
+
+  // Focus selected menu item when menu opens
   useEffect(() => {
     if (isOpen && menuItemRefs.current.length > 0) {
-      const firstEnabledIndex = options.findIndex(
-        (option) => option.show !== false && !option.disabled,
-      );
-      if (firstEnabledIndex !== -1) {
-        setFocusedIndex(firstEnabledIndex);
+      const selectedIndex = options.findIndex((option) => option.isSelected);
+      if (selectedIndex !== -1) {
+        setFocusedIndex(selectedIndex);
         setTimeout(() => {
-          menuItemRefs.current[firstEnabledIndex]?.focus();
+          menuItemRefs.current[selectedIndex]?.focus();
         }, 0);
       }
     }
